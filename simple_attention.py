@@ -1,17 +1,19 @@
 
 import torch
+import torch.nn as nn
 
 
-class SimpleAttention:
-    def __init__(self, d_in, d_out):
-        self.W_q = torch.nn.Parameter(torch.rand(d_in, d_out))
-        self.W_k = torch.nn.Parameter(torch.rand(d_in, d_out))
-        self.W_v = torch.nn.Parameter(torch.rand(d_in, d_out))
+class SimpleAttention(nn.Module):
+    def __init__(self, d_in, d_out, qkv_bias=False):
+        super().__init__()
+        self.W_q = nn.Linear(d_in, d_out, bias=qkv_bias)
+        self.W_k = nn.Linear(d_in, d_out, bias=qkv_bias)
+        self.W_v = nn.Linear(d_in, d_out, bias=qkv_bias)
 
     def forward(self, input):
-        query = input @ self.W_q
-        key = input @ self.W_k
-        value = input @ self.W_v
+        query = self.W_q(input)
+        key = self.W_k(input)
+        value = self.W_v(input)
 
         atten_scores = query @ key.T
         atten_weights = torch.softmax(atten_scores / (key.shape[-1] ** 0.5), dim=-1)
